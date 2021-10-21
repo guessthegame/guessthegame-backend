@@ -16,6 +16,15 @@ async function bootstrap() {
   }
 
   /**
+   * https://docs.nestjs.com/security/cors
+   */
+  if (process.env.CORS_CLIENTS) {
+    app.enableCors({
+      origin: process.env.CORS_CLIENTS.split(','),
+    })
+  }
+
+  /**
    * Start the application and make it listen on port defined in .env
    */
   if (!process.env.API_PORT) {
