@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core'
 
 import { AppModule } from './modules/app.module'
+import { bootstrapSwagger } from './services/swagger'
 
 /**
  * Bootstrap the whole application
@@ -23,6 +24,12 @@ async function bootstrap() {
       origin: process.env.CORS_CLIENTS.split(','),
     })
   }
+
+  /**
+   * Start Swagger Documentation server
+   * available at http://localhost:3100/swagger/
+   */
+  bootstrapSwagger(app)
 
   /**
    * Start the application and make it listen on port defined in .env
