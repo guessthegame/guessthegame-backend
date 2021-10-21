@@ -7,7 +7,7 @@ class AppControllerResponse {
   version: string
 }
 
-@Controller('/')
+@Controller()
 export class AppController {
   @Get('/')
   helloWold(): AppControllerResponse {

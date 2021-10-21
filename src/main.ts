@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 
 import { AppModule } from './modules/app.module'
@@ -24,6 +25,13 @@ async function bootstrap() {
       origin: process.env.CORS_CLIENTS.split(','),
     })
   }
+
+  /**
+   * Enables auto validation for rules for all incoming client payloads,
+   * where the specific rules are declared with simple annotations in local DTO declarations
+   * https://docs.nestjs.com/techniques/validation
+   */
+  app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: true, transform: true }))
 
   /**
    * Start Swagger Documentation server
