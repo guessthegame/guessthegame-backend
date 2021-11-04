@@ -104,7 +104,6 @@ Then you need to edit, in the new `.env` file, the following:
 - `API_JWT_SECRET`: change it to a random string (you can get one via https://www.grc.com/passwords.htm)
 - `CORS_CLIENTS`: list here the url of allowed clients
 - `DATABASE_URL`: Database credentials URL
-- `THINGSBOARD_URL`: ThingsBoard URL (also change `THINGSBOARD_USERNAME` and `THINGSBOARD_PASSWORD` if needed)
 
 ### Start
 
