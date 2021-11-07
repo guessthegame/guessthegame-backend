@@ -10,6 +10,7 @@ import { CreateTokenAuthController } from './controllers/create-tokens.controlle
 import { DeleteTokensAuthController } from './controllers/delete-tokens.controller'
 import { MeAuthController } from './controllers/me.controller'
 import { RefreshTokenAuthController } from './controllers/refresh-token.controller'
+import { RegisterAuthController } from './controllers/register.controller'
 import { JwtStrategy } from './guards/jwt.strategy'
 
 @Module({
@@ -27,6 +28,7 @@ import { JwtStrategy } from './guards/jwt.strategy'
     }),
   ],
   controllers: [
+    RegisterAuthController,
     CreateTokenAuthController,
     RefreshTokenAuthController,
     DeleteTokensAuthController,
