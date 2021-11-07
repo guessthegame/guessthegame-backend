@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  database:
+    container_name: guessthegame-database
+    image: postgres:14.0-alpine
+    restart: 'no'
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+    ports:
+      - 8101:5432
+    volumes:
+      - guessthegame-database:/var/lib/postgresql/data
+      - ./prisma/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
+
+  adminer:
+    container_name: guessthegame-adminer
+    image: adminer:latest
+    restart: 'no'
+    depends_on:
+      - database
+    ports:
+      - 8102:8080
+
+volumes:
+  guessthegame-database:

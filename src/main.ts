@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 
 import { AppModule } from './modules/app.module'
+import { PrismaService } from './modules/shared/prisma/prisma.service'
 import { bootstrapSwagger } from './services/swagger'
 
 /**
@@ -9,6 +10,12 @@ import { bootstrapSwagger } from './services/swagger'
  */
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+
+  /**
+   * https://docs.nestjs.com/recipes/prisma#issues-with-enableshutdownhooks
+   */
+  const prismaService: PrismaService = app.get(PrismaService)
+  prismaService.enableShutdownHooks(app)
 
   /**
    * Set global prefix api version

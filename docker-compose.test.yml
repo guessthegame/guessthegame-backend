@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  dbtest:
+    container_name: guessthegame-test-database
+    image: postgres:14.0-alpine
+    restart: 'no'
+    environment:
+      POSTGRES_USER: gtg-e2etests
+      POSTGRES_PASSWORD: gtg-e2etests
+      POSTGRES_DB: gtg-e2etests
+    ports:
+      - '8103:5432'
+    volumes:
+      - guessthegame-test-database:/var/lib/postgresql/data
+      - ./prisma/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
+
+volumes:
+  guessthegame-test-database:
