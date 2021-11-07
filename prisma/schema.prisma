@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========
+// = User =
+// ========
+//
+// User account, can be Player and/or Admin. Players have a user account even if they have not signed-up yet.
+
+model User {
+  id   Int    @id @default(autoincrement())
+  uuid String @unique @default(uuid()) @db.Uuid
+
+  // If user is not registered yet, they are identified via a token stored in the browser, which never expires
+  browserToken String? @unique
+
+  // Username
+  username String? @unique @db.Citext
+
+  // Hashed password
+  passwordHash String?
+
+  // Email is not mandatory upon sign-up
+  email String? @unique @db.Citext
+
+  // User can administrate a customer, or enexten back office, or be an installator
+  roles UserRoleEnum[]
+
+  // Has many RefreshTokens
+  refreshTokens UserRefreshToken[]
+
+  // User Creation Date
+  creationDate DateTime @default(now())
+
+  // User Creation Date
+  signUpDate DateTime? @default(now())
+}
+
+enum UserRoleEnum {
+  Player
+  Admin
+}
+
+// ====================
+// = UserRefreshToken =
+// ====================
+//
+// https://stackoverflow.com/a/39003201
+
+model UserRefreshToken {
+  id             Int      @id @default(autoincrement())
+  token          String   @unique
+  creationDate   DateTime @default(now())
+  expirationDate DateTime
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
+}

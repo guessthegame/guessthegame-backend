@@ -11,7 +11,8 @@
   },
   "cSpell.words": [
     "guessthegame",
-    "nestjs"
-],
+    "nestjs",
+    "upsert"
+  ],
   "editor.tabSize": 2
 }

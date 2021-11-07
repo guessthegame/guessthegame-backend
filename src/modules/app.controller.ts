@@ -3,8 +3,8 @@ import { Controller, Get } from '@nestjs/common'
 import { version } from '../../package.json'
 
 class AppControllerResponse {
-  app: string
-  version: string
+  app!: string
+  version!: string
 }
 
 @Controller()

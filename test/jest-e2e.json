@@ -1,9 +1,16 @@
 {
+  "bail": true,
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "..",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "coverageDirectory": "./coverage/e2e",
+  "globalSetup": "<rootDir>/test/setup.ts",
+  "setupFilesAfterEnv": ["<rootDir>/test/after-all.ts"],
+  "collectCoverageFrom": ["src/**/*.ts"],
+  "coveragePathIgnorePatterns": ["<rootDir>/src/main.ts", "<rootDir>/src/swagger.ts", ".spec.ts"],
+  "slowTestThreshold": 20
 }
