@@ -1,10 +1,10 @@
 import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 
+import { createAndLogUser } from '../utils/auth'
 import { createTestApp } from '../utils/create-test-app'
 import { newUser, newUserWithoutEmail } from '../utils/fixtures/user'
 import { prisma } from '../utils/prisma'
-import { User } from '.prisma/client'
 
 describe('GET /auth/me', () => {
   let app: INestApplication
@@ -24,20 +24,8 @@ describe('GET /auth/me', () => {
       .send()
   }
 
-  async function createAndLogUser(userData: Pick<User, 'username' | 'passwordHash' | 'email'>) {
-    const user = await prisma.user.create({ data: userData })
-
-    // Log in the user
-    const { body } = await request(app.getHttpServer())
-      .post('/auth/tokens')
-      .send({ username: user.username, password: 'password' })
-      .expect(201)
-
-    return { user, accessToken: body.accessToken }
-  }
-
   it('should return logged user data', async () => {
-    const { user, accessToken } = await createAndLogUser(newUser())
+    const { user, accessToken } = await createAndLogUser(app, newUser())
 
     await callApi(accessToken)
       .expect({
@@ -49,7 +37,7 @@ describe('GET /auth/me', () => {
   })
 
   it('should return logged user data (no email)', async () => {
-    const { user, accessToken } = await createAndLogUser(newUserWithoutEmail())
+    const { user, accessToken } = await createAndLogUser(app, newUserWithoutEmail())
 
     await callApi(accessToken)
       .expect({
@@ -62,7 +50,7 @@ describe('GET /auth/me', () => {
 
   describe('deleted user', () => {
     it('should throw a 404', async () => {
-      const { user, accessToken } = await createAndLogUser(newUser())
+      const { user, accessToken } = await createAndLogUser(app, newUser())
 
       // delete user
       await prisma.user.delete({ where: { id: user.id } })
