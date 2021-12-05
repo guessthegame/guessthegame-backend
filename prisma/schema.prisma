@@ -10,15 +10,74 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ==============
+// = Screenshot =
+// ==============
+// A unique screenshot of a game
+
+model Screenshot {
+  id           Int      @id @default(autoincrement())
+  creationDate DateTime @default(now())
+
+  // Official game name
+  gameName String
+
+  // Year the game came out
+  year Int
+
+  // Has one image
+  image   Image @relation(fields: [imageId], references: [id])
+  imageId Int   @unique
+
+  // Has many phonetic names
+  phoneticNames PhoneticName[]
+
+  // User who added the screenshot
+  addedBy       User @relation("AddedBy", fields: [addedByUserId], references: [id])
+  addedByUserId Int
+
+  firstGuessedBy       User? @relation("FirstGuessedBy", fields: [firstGuessedByUserId], references: [id])
+  firstGuessedByUserId Int?
+}
+
+model Image {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid()) @db.Uuid
+  creationDate DateTime @default(now())
+
+  transformations Json
+
+  screenshot Screenshot?
+}
+
+// ================
+// = PhoneticName =
+// ================
+// To correctly guess a Screenshot, the user's input will be tested against those phonetic names.
+
+model PhoneticName {
+  id Int @id @default(autoincrement())
+
+  // Original unchanged name
+  originalName String
+
+  // Phonetic version of the name (stem + metaphone)
+  phoneticName String
+
+  // Belongs to a Screenshot
+  screenshot   Screenshot @relation(fields: [screenshotId], references: [id], onDelete: Cascade)
+  screenshotId Int
+}
+
 // ========
 // = User =
 // ========
-//
 // User account, can be Player and/or Admin. Players have a user account even if they have not signed-up yet.
 
 model User {
-  id   Int    @id @default(autoincrement())
-  uuid String @unique @default(uuid()) @db.Uuid
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid()) @db.Uuid
+  creationDate DateTime @default(now())
 
   // If user is not registered yet, they are identified via a token stored in the browser, which never expires
   browserToken String? @unique
@@ -39,10 +98,13 @@ model User {
   refreshTokens UserRefreshToken[]
 
   // User Creation Date
-  creationDate DateTime @default(now())
-
-  // User Creation Date
   signUpDate DateTime? @default(now())
+
+  // Screenshot added by the user
+  screenshotsAdded Screenshot[] @relation("AddedBy")
+
+  // Screenshot first guessed by the user
+  screenshotsFirstGuessed Screenshot[] @relation("FirstGuessedBy")
 }
 
 enum UserRoleEnum {
@@ -53,13 +115,12 @@ enum UserRoleEnum {
 // ====================
 // = UserRefreshToken =
 // ====================
-//
 // https://stackoverflow.com/a/39003201
 
 model UserRefreshToken {
   id             Int      @id @default(autoincrement())
-  token          String   @unique
   creationDate   DateTime @default(now())
+  token          String   @unique
   expirationDate DateTime
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         Int
