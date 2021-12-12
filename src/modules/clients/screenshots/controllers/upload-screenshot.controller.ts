@@ -19,11 +19,11 @@ import { uniq } from 'lodash'
 import * as sharp from 'sharp'
 import { v4 } from 'uuid'
 
-import { toPhonetics } from '../../../helpers/phonetics/phonetics'
-import { getRandomInt } from '../../../helpers/random'
-import { RequestContainingUser } from '../../auth/auth.types'
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
-import { PrismaService } from '../../shared/prisma/prisma.service'
+import { toPhonetics } from '../../../../helpers/phonetics/phonetics'
+import { getRandomInt } from '../../../../helpers/utilities/random'
+import { RequestContainingUser } from '../../../auth/auth.types'
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard'
+import { PrismaService } from '../../../shared/prisma/prisma.service'
 
 const UPLOAD_FOLDER = 'uploads'
 

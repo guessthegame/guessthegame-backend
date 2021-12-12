@@ -5,7 +5,6 @@ import { IsNotEmpty, IsOptional } from 'class-validator'
 
 import { PrismaService } from '../../shared/prisma/prisma.service'
 import { AuthService } from '../auth.service'
-import { RefreshTokenAuthControllerResponse } from './refresh-token.controller'
 
 export class RegisterAuthControllerRequest {
   @IsNotEmpty()
@@ -32,7 +31,7 @@ export class RegisterAuthController {
   constructor(private readonly prisma: PrismaService, private readonly authService: AuthService) {}
 
   @Post('/auth/register')
-  @ApiResponse({ type: RefreshTokenAuthControllerResponse })
+  @ApiResponse({ type: RegisterAuthControllerResponse })
   async register(
     @Body() body: RegisterAuthControllerRequest
   ): Promise<RegisterAuthControllerResponse> {

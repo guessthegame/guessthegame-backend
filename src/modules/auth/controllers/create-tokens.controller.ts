@@ -94,7 +94,7 @@ export class CreateTokenAuthController {
 
     // If unsuccessful, try to find user by email
     if (!user) {
-      user = await this.prisma.user.findUnique({
+      user = await this.prisma.user.findFirst({
         where: { email: username },
         select: { id: true, uuid: true, roles: true, passwordHash: true },
       })

@@ -13,6 +13,7 @@
     "guessthegame",
     "metaphone",
     "nestjs",
+    "unvalidated",
     "upsert"
   ],
   "editor.tabSize": 2

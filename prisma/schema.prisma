@@ -10,10 +10,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// =========
+// = Guess =
+// =========
+
+model SolvedScreenshot {
+  id Int @id @default(autoincrement())
+
+  screenshot   Screenshot @relation(fields: [screenshotId], references: [id])
+  screenshotId Int
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@unique([userId, screenshotId])
+}
+
+// =========
+// = Image =
+// =========
+
+model Image {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid()) @db.Uuid
+  creationDate DateTime @default(now())
+
+  transformations Json
+
+  screenshot Screenshot?
+}
+
 // ==============
 // = Screenshot =
 // ==============
-// A unique screenshot of a game
 
 model Screenshot {
   id           Int      @id @default(autoincrement())
@@ -32,22 +61,19 @@ model Screenshot {
   // Has many phonetic names
   phoneticNames PhoneticName[]
 
+  // A moderator has validated the screenshot
+  isValidated Boolean @default(false)
+
   // User who added the screenshot
   addedBy       User @relation("AddedBy", fields: [addedByUserId], references: [id])
   addedByUserId Int
 
+  // User who first solved the screenshot
   firstGuessedBy       User? @relation("FirstGuessedBy", fields: [firstGuessedByUserId], references: [id])
   firstGuessedByUserId Int?
-}
 
-model Image {
-  id           Int      @id @default(autoincrement())
-  uuid         String   @unique @default(uuid()) @db.Uuid
-  creationDate DateTime @default(now())
-
-  transformations Json
-
-  screenshot Screenshot?
+  // Has been solved many times
+  solvedScreenshots SolvedScreenshot[]
 }
 
 // ================
@@ -89,7 +115,7 @@ model User {
   passwordHash String?
 
   // Email is not mandatory upon sign-up
-  email String? @unique @db.Citext
+  email String? @db.Citext
 
   // User can administrate a customer, or enexten back office, or be an installator
   roles UserRoleEnum[]
@@ -105,6 +131,9 @@ model User {
 
   // Screenshot first guessed by the user
   screenshotsFirstGuessed Screenshot[] @relation("FirstGuessedBy")
+
+  // Has solved many screenshots
+  solvedScreenshot SolvedScreenshot[]
 }
 
 enum UserRoleEnum {

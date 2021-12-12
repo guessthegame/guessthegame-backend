@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
+import { TrimMiddleware } from '../middlewares/trim.middleware'
 import { AppController } from './app.controller'
 import { AuthModule } from './auth/auth.module'
-import { ScreenshotsModule } from './screenshots/screenshots.module'
+import { FrontendModule } from './clients/frontend.module'
 import { PrismaModule } from './shared/prisma/prisma.module'
 
 @Module({
@@ -12,9 +13,16 @@ import { PrismaModule } from './shared/prisma/prisma.module'
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
     }),
     AuthModule,
-    ScreenshotsModule,
+    FrontendModule,
     PrismaModule,
   ],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule {
+  /**
+   * Middlewares
+   */
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(TrimMiddleware).forRoutes('*')
+  }
+}

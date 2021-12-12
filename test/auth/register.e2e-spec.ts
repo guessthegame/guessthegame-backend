@@ -33,7 +33,7 @@ describe('POST /auth/register', () => {
     })
 
     return await prisma.user.findUnique({
-      where: { username: req.username },
+      where: { username: req.username.trim() },
       select: { id: true, username: true, passwordHash: true, email: true, creationDate: true },
     })
   }
@@ -61,7 +61,7 @@ describe('POST /auth/register', () => {
       const email = `${username}@email.com`
 
       const user = await shouldBeSuccessful({
-        username,
+        username: ` ${username}  `,
         email,
         password: 'password',
       })
@@ -142,6 +142,24 @@ describe('POST /auth/register', () => {
 
       const { statusCode, body } = await callApi({
         username: user.username,
+        password: 'password',
+      })
+      expect({ statusCode, body }).toEqual({
+        statusCode: 400,
+        body: {
+          error: 'Bad Request',
+          message: 'USERNAME_TAKEN',
+          statusCode: 400,
+        },
+      })
+    })
+
+    it('should reject when spaces are added', async () => {
+      const user = newUser()
+      await prisma.user.create({ data: user })
+
+      const { statusCode, body } = await callApi({
+        username: `  ${user.username} `,
         password: 'password',
       })
       expect({ statusCode, body }).toEqual({

@@ -2,13 +2,13 @@ import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { v4 } from 'uuid'
 
-import { UploadScreenshotControllerRequest } from '../../src/modules/screenshots/controllers/upload-screenshot.controller'
-import { createAndLogUser } from '../utils/auth'
-import { createTestApp } from '../utils/create-test-app'
-import { prisma } from '../utils/prisma'
+import { UploadScreenshotControllerRequest } from '../../../../src/modules/clients/screenshots/controllers/upload-screenshot.controller'
+import { createAndLogUser } from '../../../utils/auth'
+import { createTestApp } from '../../../utils/create-test-app'
+import { prisma } from '../../../utils/prisma'
 import { User } from '.prisma/client'
 
-describe('POST /auth/register', () => {
+describe('POST /frontend/screenshots', () => {
   let uploader: User
   let token: string
   let app: INestApplication
@@ -53,7 +53,8 @@ describe('POST /auth/register', () => {
       firstGuessedByUserId: null,
       gameName: 'Age of Empires II: The Age of Kings',
       id: body.id,
-      imageId: 1,
+      imageId: image.id,
+      isValidated: false,
       year: 1999,
       phoneticNames: [
         {
@@ -112,7 +113,7 @@ describe('POST /auth/register', () => {
     expect({ body, statusCode }).toEqual({
       body: {
         error: 'Bad Request',
-        message: 'EMPTY_NAMES',
+        message: ['originalName should not be empty'],
         statusCode: 400,
       },
       statusCode: 400,
