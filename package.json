@@ -40,6 +40,7 @@
     "@nestjs/jwt": "8.0.0",
     "@nestjs/passport": "8.0.1",
     "@nestjs/platform-express": "8.1.2",
+    "@nestjs/serve-static": "2.2.2",
     "@nestjs/swagger": "5.1.4",
     "@prisma/client": "3.4.1",
     "@types/lodash": "4.14.177",

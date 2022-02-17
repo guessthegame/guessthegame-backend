@@ -11,7 +11,7 @@ export async function main(): Promise<void> {
    */
   await prisma.user.upsert({
     where: {
-      email: 'dev@guess-the-game.com',
+      username: 'polo',
     },
     update: {},
     create: {

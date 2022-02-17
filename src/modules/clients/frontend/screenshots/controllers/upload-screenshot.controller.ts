@@ -1,7 +1,6 @@
 import * as fs from 'fs'
 
 import {
-  BadRequestException,
   Body,
   Controller,
   NotFoundException,
@@ -12,18 +11,19 @@ import {
   UseInterceptors,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { UserRoleEnum } from '@prisma/client'
 import { IsArray, IsInt, IsNotEmpty, Max, Min } from 'class-validator'
 import { Express } from 'express'
 import { uniq } from 'lodash'
 import * as sharp from 'sharp'
 import { v4 } from 'uuid'
 
-import { toPhonetics } from '../../../helpers/phonetics/phonetics'
-import { getRandomInt } from '../../../helpers/random'
-import { RequestContainingUser } from '../../auth/auth.types'
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
-import { PrismaService } from '../../shared/prisma/prisma.service'
+import { toPhonetics } from '../../../../../helpers/phonetics/phonetics'
+import { getRandomInt } from '../../../../../helpers/utilities/random'
+import { RequestContainingUser } from '../../../../auth/auth.types'
+import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard'
+import { PrismaService } from '../../../../shared/prisma/prisma.service'
 
 const UPLOAD_FOLDER = 'uploads'
 
@@ -49,11 +49,12 @@ export class UploadScreenshotControllerResponse {
   id!: number
 }
 
+@ApiTags('frontend')
 @Controller()
 export class UploadScreenshotController {
   constructor(private readonly prisma: PrismaService) {}
 
-  @Post('/screenshots')
+  @Post('/frontend/screenshots')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiResponse({ type: UploadScreenshotControllerResponse })
@@ -65,7 +66,7 @@ export class UploadScreenshotController {
      * Check uploaded image
      */
     const image = await this.prisma.image.findUnique({
-      where: { uuid: body.imageId },
+      where: { transformedUuid: body.imageId },
       select: { id: true },
     })
     if (!image) {
@@ -81,9 +82,6 @@ export class UploadScreenshotController {
         .map((name) => name.trim())
         .filter((name) => name)
     )
-    if (allNames.length === 0) {
-      throw new BadRequestException('EMPTY_NAMES')
-    }
 
     /**
      * Compile the names into phonetic names
@@ -96,6 +94,10 @@ export class UploadScreenshotController {
     /**
      * Create the screenshot
      */
+    const user = await this.prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { roles: true },
+    })
     const screenshot = await this.prisma.screenshot.create({
       data: {
         gameName: body.originalName,
@@ -103,6 +105,7 @@ export class UploadScreenshotController {
         addedByUserId: req.user.id,
         phoneticNames: { createMany: { data: phoneticNames } },
         imageId: image.id,
+        isValidated: user?.roles.includes(UserRoleEnum.Admin),
       },
       select: {
         id: true,
@@ -112,7 +115,7 @@ export class UploadScreenshotController {
     return screenshot
   }
 
-  @Post('/screenshots/image')
+  @Post('/frontend/screenshots/image')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @UseInterceptors(
@@ -125,15 +128,16 @@ export class UploadScreenshotController {
     /**
      * Save original file
      */
-    const uuid = v4()
+    const originalUuid = v4()
     await sharp(file.path)
       .resize(1280, 720, { fit: 'contain', background: '#000000' })
       .jpeg({ mozjpeg: true, quality: 90 })
-      .toFile(`${UPLOAD_FOLDER}/${uuid}.jpg`)
+      .toFile(`${UPLOAD_FOLDER}/${originalUuid}.jpg`)
 
     /**
      * Save transformed version
      */
+    const transformedUuid = v4()
     const transformations = {
       angle: getRandomInt(8, 15),
       top: getRandomInt(10, 30),
@@ -144,9 +148,9 @@ export class UploadScreenshotController {
       invert: true,
     }
     await sharp(file.path)
-      .resize(1280, 720, { fit: 'contain', background: '#000000' })
-      .flip()
       .negate({ alpha: false })
+      .resize(1280, 720, { fit: 'contain', background: '#ffffff' })
+      .flip()
       .rotate(transformations.angle, { background: '#6b196e' })
       .extend({
         top: transformations.top,
@@ -156,19 +160,20 @@ export class UploadScreenshotController {
         background: '#657e9f',
       })
       .jpeg({ mozjpeg: true, quality: 90 })
-      .toFile(`${UPLOAD_FOLDER}/${uuid}.transformed.jpg`)
+      .toFile(`${UPLOAD_FOLDER}/${transformedUuid}.transformed.jpg`)
 
     fs.unlinkSync(file.path)
 
     await this.prisma.image.create({
       data: {
-        uuid,
+        originalUuid,
+        transformedUuid,
         transformations,
       },
     })
 
     return {
-      uuid,
+      uuid: transformedUuid,
     }
   }
 }

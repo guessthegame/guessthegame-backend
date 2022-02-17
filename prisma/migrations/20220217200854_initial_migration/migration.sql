@@ -2,26 +2,36 @@
 CREATE TYPE "UserRoleEnum" AS ENUM ('Player', 'Admin');
 
 -- CreateTable
+CREATE TABLE "SolvedScreenshot" (
+    "id" SERIAL NOT NULL,
+    "screenshotId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+
+    CONSTRAINT "SolvedScreenshot_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Image" (
+    "id" SERIAL NOT NULL,
+    "creationDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "originalUuid" UUID NOT NULL,
+    "transformedUuid" UUID NOT NULL,
+    "transformations" JSONB NOT NULL,
+
+    CONSTRAINT "Image_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Screenshot" (
     "id" SERIAL NOT NULL,
     "creationDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "gameName" TEXT NOT NULL,
     "year" INTEGER NOT NULL,
     "imageId" INTEGER NOT NULL,
+    "isValidated" BOOLEAN NOT NULL DEFAULT false,
     "addedByUserId" INTEGER NOT NULL,
-    "firstGuessedByUserId" INTEGER,
 
     CONSTRAINT "Screenshot_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Image" (
-    "id" SERIAL NOT NULL,
-    "uuid" UUID NOT NULL,
-    "creationDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "transformations" JSONB NOT NULL,
-
-    CONSTRAINT "Image_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -39,8 +49,9 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "uuid" UUID NOT NULL,
     "creationDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isRegistered" BOOLEAN NOT NULL DEFAULT false,
     "browserToken" TEXT,
-    "username" CITEXT,
+    "username" CITEXT NOT NULL,
     "passwordHash" TEXT,
     "email" CITEXT,
     "roles" "UserRoleEnum"[],
@@ -61,10 +72,16 @@ CREATE TABLE "UserRefreshToken" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Screenshot_imageId_key" ON "Screenshot"("imageId");
+CREATE UNIQUE INDEX "SolvedScreenshot_userId_screenshotId_key" ON "SolvedScreenshot"("userId", "screenshotId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Image_uuid_key" ON "Image"("uuid");
+CREATE UNIQUE INDEX "Image_originalUuid_key" ON "Image"("originalUuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Image_transformedUuid_key" ON "Image"("transformedUuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Screenshot_imageId_key" ON "Screenshot"("imageId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_uuid_key" ON "User"("uuid");
@@ -76,19 +93,19 @@ CREATE UNIQUE INDEX "User_browserToken_key" ON "User"("browserToken");
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
 CREATE UNIQUE INDEX "UserRefreshToken_token_key" ON "UserRefreshToken"("token");
+
+-- AddForeignKey
+ALTER TABLE "SolvedScreenshot" ADD CONSTRAINT "SolvedScreenshot_screenshotId_fkey" FOREIGN KEY ("screenshotId") REFERENCES "Screenshot"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SolvedScreenshot" ADD CONSTRAINT "SolvedScreenshot_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Screenshot" ADD CONSTRAINT "Screenshot_imageId_fkey" FOREIGN KEY ("imageId") REFERENCES "Image"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Screenshot" ADD CONSTRAINT "Screenshot_addedByUserId_fkey" FOREIGN KEY ("addedByUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Screenshot" ADD CONSTRAINT "Screenshot_firstGuessedByUserId_fkey" FOREIGN KEY ("firstGuessedByUserId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PhoneticName" ADD CONSTRAINT "PhoneticName_screenshotId_fkey" FOREIGN KEY ("screenshotId") REFERENCES "Screenshot"("id") ON DELETE CASCADE ON UPDATE CASCADE;

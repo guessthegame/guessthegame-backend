@@ -2,13 +2,14 @@ import { INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import { v4 } from 'uuid'
 
-import { UploadScreenshotControllerRequest } from '../../src/modules/screenshots/controllers/upload-screenshot.controller'
-import { createAndLogUser } from '../utils/auth'
-import { createTestApp } from '../utils/create-test-app'
-import { prisma } from '../utils/prisma'
+import { UploadScreenshotControllerRequest } from '../../../../src/modules/clients/frontend/screenshots/controllers/upload-screenshot.controller'
+import { createAndLogUser } from '../../../utils/auth'
+import { createTestApp } from '../../../utils/create-test-app'
+import { newImage } from '../../../utils/fixtures/image'
+import { prisma } from '../../../utils/prisma'
 import { User } from '.prisma/client'
 
-describe('POST /auth/register', () => {
+describe('POST /frontend/screenshots', () => {
   let uploader: User
   let token: string
   let app: INestApplication
@@ -26,15 +27,15 @@ describe('POST /auth/register', () => {
 
   function callApi(body: UploadScreenshotControllerRequest) {
     return request(app.getHttpServer())
-      .post('/screenshots')
+      .post('/frontend/screenshots')
       .set('Authorization', `Bearer ${token}`)
       .send(body)
   }
 
   it('should create a new screenshot with phonetic names', async () => {
-    const image = await prisma.image.create({ data: { transformations: {} } })
+    const image = await prisma.image.create({ data: newImage() })
     const { body, statusCode } = await callApi({
-      imageId: image.uuid,
+      imageId: image.transformedUuid,
       originalName: 'Age of Empires II: The Age of Kings',
       alternativeNames: ['Age Of Empires 2', 'Age Of Empires II', 'aoe aok', '  aoe aok  '],
       year: 1999,
@@ -50,10 +51,10 @@ describe('POST /auth/register', () => {
     ).toEqual({
       addedByUserId: uploader.id,
       creationDate: expect.any(Date),
-      firstGuessedByUserId: null,
       gameName: 'Age of Empires II: The Age of Kings',
       id: body.id,
-      imageId: 1,
+      imageId: image.id,
+      isValidated: false,
       year: 1999,
       phoneticNames: [
         {
@@ -102,9 +103,9 @@ describe('POST /auth/register', () => {
   })
 
   it('should throw if empty', async () => {
-    const image = await prisma.image.create({ data: { transformations: {} } })
+    const image = await prisma.image.create({ data: newImage() })
     const { body, statusCode } = await callApi({
-      imageId: image.uuid,
+      imageId: image.transformedUuid,
       originalName: '    ',
       alternativeNames: [''],
       year: 2000,
@@ -112,7 +113,7 @@ describe('POST /auth/register', () => {
     expect({ body, statusCode }).toEqual({
       body: {
         error: 'Bad Request',
-        message: 'EMPTY_NAMES',
+        message: ['originalName should not be empty'],
         statusCode: 400,
       },
       statusCode: 400,
@@ -139,7 +140,9 @@ describe('POST /auth/register', () => {
   })
 
   it('should reject if not logged in', async () => {
-    const { body, statusCode } = await request(app.getHttpServer()).post('/screenshots').send({})
+    const { body, statusCode } = await request(app.getHttpServer())
+      .post('/frontend/screenshots')
+      .send({})
 
     expect({ body, statusCode }).toEqual({
       body: {
