@@ -2,7 +2,7 @@ import { Body, Controller, Put, UnauthorizedException } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { IsNotEmpty } from 'class-validator'
 
-import { PrismaService } from '../../shared/prisma/prisma.service'
+import { DatabaseService } from '../../shared/database/database.service'
 import { AuthService } from '../auth.service'
 
 export class RefreshTokenAuthControllerRequest {
@@ -22,7 +22,7 @@ export class RefreshTokenAuthControllerResponse {
 @ApiTags('auth')
 @Controller()
 export class RefreshTokenAuthController {
-  constructor(private readonly prisma: PrismaService, private authService: AuthService) {}
+  constructor(private readonly prisma: DatabaseService, private authService: AuthService) {}
 
   @Put('/auth/tokens')
   @ApiResponse({ type: RefreshTokenAuthControllerResponse })

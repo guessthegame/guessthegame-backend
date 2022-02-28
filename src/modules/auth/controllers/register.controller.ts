@@ -3,7 +3,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '@prisma/client'
 import { IsNotEmpty, IsOptional } from 'class-validator'
 
-import { PrismaService } from '../../shared/prisma/prisma.service'
+import { DatabaseService } from '../../shared/database/database.service'
 import { AuthService } from '../auth.service'
 
 export class RegisterAuthControllerRequest {
@@ -28,7 +28,10 @@ export class RegisterAuthControllerResponse {
 @ApiTags('auth')
 @Controller()
 export class RegisterAuthController {
-  constructor(private readonly prisma: PrismaService, private readonly authService: AuthService) {}
+  constructor(
+    private readonly prisma: DatabaseService,
+    private readonly authService: AuthService
+  ) {}
 
   @Post('/auth/register')
   @ApiResponse({ type: RegisterAuthControllerResponse })

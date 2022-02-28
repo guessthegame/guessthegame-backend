@@ -12,7 +12,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { RequestContainingUser, UserSessionType } from '../../../../auth/auth.types'
 import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard'
-import { PrismaService } from '../../../../shared/prisma/prisma.service'
+import { DatabaseService } from '../../../../shared/database/database.service'
 
 class GetScreenshotControllerResponse {
   creationDate!: Date
@@ -41,7 +41,7 @@ class GetScreenshotControllerResponse_Transformations {
 @ApiTags('frontend')
 @Controller()
 export class GetScreenshotController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: DatabaseService) {}
 
   @Get('/frontend/play/get-screenshot/:id/unauthenticated')
   @ApiResponse({ type: GetScreenshotControllerResponse })

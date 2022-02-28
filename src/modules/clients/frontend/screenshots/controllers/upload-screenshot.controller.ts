@@ -19,11 +19,12 @@ import { uniq } from 'lodash'
 import * as sharp from 'sharp'
 import { v4 } from 'uuid'
 
+import { uuid } from '../../../../../../dbschema/edgeql-js/modules/std'
 import { toPhonetics } from '../../../../../helpers/phonetics/phonetics'
 import { getRandomInt } from '../../../../../helpers/utilities/random'
 import { RequestContainingUser } from '../../../../auth/auth.types'
 import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard'
-import { PrismaService } from '../../../../shared/prisma/prisma.service'
+import { DatabaseService, db } from '../../../../shared/database/database.service'
 
 const UPLOAD_FOLDER = 'uploads'
 
@@ -52,7 +53,7 @@ export class UploadScreenshotControllerResponse {
 @ApiTags('frontend')
 @Controller()
 export class UploadScreenshotController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly db: DatabaseService) {}
 
   @Post('/frontend/screenshots')
   @UseGuards(JwtAuthGuard)
@@ -62,10 +63,18 @@ export class UploadScreenshotController {
     @Req() req: RequestContainingUser,
     @Body() body: UploadScreenshotControllerRequest
   ): Promise<UploadScreenshotControllerResponse> {
+    const image = await db.select(db.ScreenshotImage, (screenshot) => ({
+      id: true,
+      filter: db.op(screenshot.transformedUuid, '=', db.uuid(body.imageId)),
+    }))
+    // .run(this.db.client)
+
+    image[0].title
+
     /**
      * Check uploaded image
      */
-    const image = await this.prisma.image.findUnique({
+    const image = await this.db.image.findUnique({
       where: { transformedUuid: body.imageId },
       select: { id: true },
     })
@@ -94,11 +103,11 @@ export class UploadScreenshotController {
     /**
      * Create the screenshot
      */
-    const user = await this.prisma.user.findUnique({
+    const user = await this.db.user.findUnique({
       where: { id: req.user.id },
       select: { roles: true },
     })
-    const screenshot = await this.prisma.screenshot.create({
+    const screenshot = await this.db.screenshot.create({
       data: {
         gameName: body.originalName,
         year: body.year,
@@ -164,13 +173,13 @@ export class UploadScreenshotController {
 
     fs.unlinkSync(file.path)
 
-    await this.prisma.image.create({
-      data: {
+    await db
+      .insert(db.ScreenshotImage, {
         originalUuid,
         transformedUuid,
-        transformations,
-      },
-    })
+        transformations: JSON.stringify(transformations),
+      })
+      .run(this.db.client)
 
     return {
       uuid: transformedUuid,

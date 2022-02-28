@@ -4,12 +4,12 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcryptjs'
 
-import { PrismaService } from '../shared/prisma/prisma.service'
+import { DatabaseService } from '../shared/database/database.service'
 import { AccessTokenContentType, AuthTokensType } from './auth.types'
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService, private readonly jwtService: JwtService) {}
+  constructor(private readonly prisma: DatabaseService, private readonly jwtService: JwtService) {}
 
   /**
    * Hash password using bcrypt

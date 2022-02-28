@@ -3,16 +3,15 @@ version: '3.9'
 services:
   database:
     container_name: guessthegame-database
-    image: postgres:14.0-alpine
+    image: edgedb/edgedb:1
     restart: 'no'
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
+      - EDGEDB_SERVER_SECURITY=insecure_dev_mode
     ports:
-      - 8101:5432
+      - 8101:5656
     volumes:
-      - guessthegame-database:/var/lib/postgresql/data
-      - ./prisma/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql:ro
+      - "./dbschema:/dbschema"
+      - "./credentials:/root/.config/edgedb/credentials"
 
   adminer:
     container_name: guessthegame-adminer

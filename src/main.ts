@@ -2,7 +2,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 
 import { AppModule } from './modules/app.module'
-import { PrismaService } from './modules/shared/prisma/prisma.service'
+import { DatabaseService } from './modules/shared/database/database.service'
 import { bootstrapSwagger } from './services/swagger'
 
 /**
@@ -14,7 +14,7 @@ async function bootstrap() {
   /**
    * https://docs.nestjs.com/recipes/prisma#issues-with-enableshutdownhooks
    */
-  const prismaService: PrismaService = app.get(PrismaService)
+  const prismaService: DatabaseService = app.get(DatabaseService)
   prismaService.enableShutdownHooks(app)
 
   /**

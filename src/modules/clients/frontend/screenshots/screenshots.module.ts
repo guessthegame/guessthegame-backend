@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common'
 
-import { PrismaModule } from '../../../shared/prisma/prisma.module'
+import { DatabaseModule } from '../../../shared/database/database.module'
 import { UploadScreenshotController } from './controllers/upload-screenshot.controller'
 
 @Module({
-  imports: [PrismaModule],
+  imports: [DatabaseModule],
   controllers: [UploadScreenshotController],
 })
 export class ScreenshotsFrontendModule {}

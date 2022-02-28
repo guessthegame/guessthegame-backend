@@ -1,12 +1,12 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common'
 import { UserRoleEnum } from '@prisma/client'
 
-import { PrismaService } from '../../shared/prisma/prisma.service'
+import { DatabaseService } from '../../shared/database/database.service'
 import { UserSessionType } from '../auth.types'
 
 @Injectable()
 export class IsAdminGuard implements CanActivate {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: DatabaseService) {}
 
   /**
    * Guard validates if user has role Admin

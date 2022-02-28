@@ -2,7 +2,7 @@ import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { IsOptional } from 'class-validator'
 
-import { PrismaService } from '../../shared/prisma/prisma.service'
+import { DatabaseService } from '../../shared/database/database.service'
 import { AuthService } from '../auth.service'
 import { AuthTokensType } from '../auth.types'
 
@@ -36,7 +36,10 @@ export class CreateTokenAuthControllerResponse {
 @ApiTags('auth')
 @Controller()
 export class CreateTokenAuthController {
-  constructor(private readonly authService: AuthService, private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly prisma: DatabaseService
+  ) {}
 
   @Post('/auth/tokens')
   @ApiResponse({

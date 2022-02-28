@@ -7,7 +7,7 @@ import { IsNumber } from 'class-validator'
 
 import { RequestContainingUser } from '../../../../auth/auth.types'
 import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard'
-import { PrismaService } from '../../../../shared/prisma/prisma.service'
+import { DatabaseService } from '../../../../shared/database/database.service'
 
 export class GetUnsolvedScreenshotControllerRequest {
   @IsNumber({}, { each: true })
@@ -21,7 +21,7 @@ class GetUnsolvedScreenshotControllerResponse {
 @ApiTags('Frontend')
 @Controller()
 export class GetUnsolvedScreenshotController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: DatabaseService) {}
 
   @Post('/frontend/play/unsolved-screenshot-authenticated')
   @UseGuards(JwtAuthGuard)

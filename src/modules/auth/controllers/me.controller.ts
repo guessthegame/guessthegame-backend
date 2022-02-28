@@ -1,7 +1,7 @@
 import { Controller, Get, NotFoundException, Req, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger'
 
-import { PrismaService } from '../../shared/prisma/prisma.service'
+import { DatabaseService } from '../../shared/database/database.service'
 import { RequestContainingUser } from '../auth.types'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
 
@@ -14,7 +14,7 @@ export class MeAuthControllerResponse {
 @ApiTags('auth')
 @Controller()
 export class MeAuthController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: DatabaseService) {}
 
   @Get('/auth/me')
   @UseGuards(JwtAuthGuard)

@@ -4,7 +4,7 @@ import { PassportModule } from '@nestjs/passport'
 
 import { LocalConfigModule } from '../shared/config/config.module'
 import { LocalConfigService } from '../shared/config/config.service'
-import { PrismaModule } from '../shared/prisma/prisma.module'
+import { DatabaseModule } from '../shared/database/database.module'
 import { AuthService } from './auth.service'
 import { CreateTokenAuthController } from './controllers/create-tokens.controller'
 import { DeleteTokensAuthController } from './controllers/delete-tokens.controller'
@@ -15,7 +15,7 @@ import { JwtStrategy } from './guards/jwt.strategy'
 
 @Module({
   imports: [
-    PrismaModule,
+    DatabaseModule,
     LocalConfigModule,
     PassportModule,
     JwtModule.registerAsync({

@@ -10,6 +10,9 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "cSpell.words": [
+    "dbschema",
+    "edgedb",
+    "edgeql",
     "guessthegame",
     "metaphone",
     "nestjs",

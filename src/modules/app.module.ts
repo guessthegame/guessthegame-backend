@@ -8,7 +8,7 @@ import { TrimMiddleware } from '../middlewares/trim.middleware'
 import { AppController } from './app.controller'
 import { AuthModule } from './auth/auth.module'
 import { ClientsModule } from './clients/clients.module'
-import { PrismaModule } from './shared/prisma/prisma.module'
+import { DatabaseModule } from './shared/database/database.module'
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { PrismaModule } from './shared/prisma/prisma.module'
     }),
     AuthModule,
     ClientsModule,
-    PrismaModule,
+    DatabaseModule,
   ],
   controllers: [AppController],
 })

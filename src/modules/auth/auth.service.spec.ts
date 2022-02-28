@@ -3,16 +3,16 @@ import { JwtService } from '@nestjs/jwt'
 import { UserRoleEnum } from '@prisma/client'
 import * as bcrypt from 'bcryptjs'
 
-import { PrismaService } from '../shared/prisma/prisma.service'
+import { DatabaseService } from '../shared/database/database.service'
 import { AuthService } from './auth.service'
 
 describe('AuthService', () => {
   let authService: AuthService
-  let prismaService: PrismaService
+  let prismaService: DatabaseService
   let jwtService: JwtService
 
   beforeEach(() => {
-    prismaService = new PrismaService()
+    prismaService = new DatabaseService()
     jwtService = new JwtService({})
     authService = new AuthService(prismaService, jwtService)
   })

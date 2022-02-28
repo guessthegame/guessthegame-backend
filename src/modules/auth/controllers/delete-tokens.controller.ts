@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Req, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { IsNotEmpty } from 'class-validator'
 
-import { PrismaService } from '../../shared/prisma/prisma.service'
+import { DatabaseService } from '../../shared/database/database.service'
 import { RequestContainingUser } from '../auth.types'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
 
@@ -18,7 +18,7 @@ class DeleteTokensAuthControllerResponse {
 @ApiTags('auth')
 @Controller()
 export class DeleteTokensAuthController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: DatabaseService) {}
 
   @Delete('/auth/tokens')
   @UseGuards(JwtAuthGuard)
