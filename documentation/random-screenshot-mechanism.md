@@ -1,6 +1,6 @@
 # Get Random Screenshot Mechanism
 
-# Latest unsolved screenshots array
+## Latest unsolved screenshots array
 
 User has locally an array of last seen screenshots, stored in their browser.  
 For example, if a user sees screenshots number 42, then 84 then 65, the array would be: [42,84,65]
@@ -15,12 +15,12 @@ For example, given array [42,84,65], if user sees then solves screenshot 65, the
 If a user sees a screenshot that is already in the array, the item is moved to the end of the array.
 For example, given array [42,84,65], if user sees screenshot 42, the array should be transformed to: [84,65,42]
 
-There is a max of 300 entries (~2kb data). If
+## Get Random Screenshot Mechanism
 
-# Get Random Screenshot Mechanism
+When the client ask for a random screenshot, it sends its latest unsolved screenshots array
 
-When the client ask for a random screenshot, it sends its latest unsolved screenshots array.
+The backend search for an unsolved screenshot, excluding the screenshots from the latest unsolved screenshots array.
 
-The backend then search an unsolved screenshot not in the array.
+If the result is null, search again but this time excluding only the last one seen (last id of the exclude array).
 
-If the result is null, it returns the oldest unsolved screenshot of the array.
+If the result is still null, that means the only unsolved screenshot is the last one of the array: return that one.

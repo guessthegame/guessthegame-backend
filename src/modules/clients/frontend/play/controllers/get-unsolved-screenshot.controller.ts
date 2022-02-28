@@ -43,6 +43,9 @@ export class GetUnsolvedScreenshotController {
     return { id }
   }
 
+  /**
+   * For more information about the random screenshot algorithm, see documentation/random-screenshot-mechanism.md
+   */
   private async getUnsolvedScreenshotId(
     exclude: number[],
     userId?: number
@@ -63,7 +66,7 @@ export class GetUnsolvedScreenshotController {
   }
 
   /**
-   * Return a random screenshot not part of the exclude parameter.
+   * Return a random screenshot from unsolved screenshots minus exclude array.
    */
   private async getRandomUnseenScreenshot(exclude: number[], userId?: number) {
     // Where clause: common + exclude
@@ -85,7 +88,7 @@ export class GetUnsolvedScreenshotController {
   }
 
   /**
-   * Return a random screenshot from all unsolved screenshot.
+   * Return a random screenshot from unsolved screenshots minus last one seen.
    * If the user has only 1 screenshot left, return it.
    */
   private async getRandomUnsolvedScreenshot(exclude: number[], userId?: number) {
